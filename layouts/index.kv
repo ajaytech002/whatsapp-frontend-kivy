@@ -1,0 +1,90 @@
+#:kivy 1.0
+#:import rgba kivy.utils.get_color_from_hex
+#:import utils kivy.utils
+#:import MDRectangleFlatButton kivymd.uix.button 
+
+<MyGrid>
+    title: 'Grid Layout'
+    canvas.before:
+        Color:
+            rgba: utils.get_color_from_hex('#ffffff')
+        Rectangle:
+            size: self.size
+            pos: self.pos           
+    BoxLayout:
+        size : root.width, root.height
+        orientation: 'horizontal'
+        background_color: rgba("#edecec")
+
+        GridLayout : 
+            cols : 2
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x : 0.3
+                background_color: rgba("#edecec")
+                border: rgba("#a9a9a9")
+                padding: 1
+                canvas.before:
+                    Color:
+                        rgba: utils.get_color_from_hex('#a9a9a9')
+                    Line:
+                        width: 0.5
+                        rectangle: self.x, self.y, self.width, self.height                
+           
+                MDToolbar:
+                    # width: root.width - 100
+                    left_action_items: [['account', lambda x: None]]
+                    right_action_items: [['cached', lambda x: None], ['message-text', lambda x: None], ['dots-vertical', lambda x: app.handle_menu("LEFT_MENU", x)]]
+                    md_bg_color : utils.get_color_from_hex('#edecec')         
+                # BoxLayout :
+                #     orientation : "horizontal"
+                #     width : root.width - 100
+
+
+                ScrollView:
+                    MDList :
+                        id : chats
+                        bg_color: [1,1,1,1]
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x : 0.7
+                padding : 1
+           
+                MDToolbar:
+                    id : toolbar_chat
+                    title : "Chat With"
+                    left_action_items: [['account', lambda x: None]]
+                    right_action_items: [['magnify', lambda x: None],['dots-vertical', lambda x: None]]
+                    md_bg_color: [237/255,236/255,236/255,255/255]
+                ScrollView:
+                    size_hint: (None, None)
+                    size : (root.width * .7, root.height - 150)
+                    canvas.before :
+                        Color:
+                            rgba: utils.get_color_from_hex('#e4dcd5')
+                        Rectangle : 
+                            pos : self.pos
+                            size : self.size
+                            # source : './images/bg-chat-tile.png'
+                    MDBoxLayout:
+                        id : chat
+                        spacing  :20
+                        cols : 1
+                        size_hint_y : None
+                        height : self.minimum_height
+                        orientation: 'vertical'
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y : 0.15
+                    padding : [20,0,0,0]
+                    MDTextField:
+                        id : user_entered_msg
+                        mode : "fill"
+                        hint_text : "Type your message here"
+                        padding : [10,10,10,10]
+                        on_text_validate : app.send_user_entered_msg()
+                        disabled : True
+                    MDIconButton :
+                        id : send_user_entered_msg_button
+                        icon : 'send'
+                        on_release : app.send_user_entered_msg()

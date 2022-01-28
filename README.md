@@ -19,11 +19,17 @@ The following dependencies are needed to run the application:
 - [Kivy](https://kivy.org/)
 
 ```bash
-python -m pip install kivy[base]
+pip install kivy[base]
+```
+
+- [KivyMD](https://kivymd.readthedocs.io/en/latest/getting-started/)
+
+```bash
+pip install kivymd
 ```
 
 - [requests](https://requests.readthedocs.io/en/master/)
 
 ```bash
-python -m pip install requests
+pip install requests
 ```
