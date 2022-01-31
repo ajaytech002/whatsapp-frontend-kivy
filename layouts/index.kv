@@ -33,8 +33,8 @@
            
                 MDToolbar:
                     # width: root.width - 100
-                    left_action_items: [['account', lambda x: None]]
-                    right_action_items: [['cached', lambda x: None], ['message-text', lambda x: None], ['dots-vertical', lambda x: app.handle_menu("LEFT_MENU", x)]]
+                    left_action_items: [['account', lambda x: profile_left.set_state("open")]]
+                    right_action_items: [['cached', lambda x: None], ['message-text', lambda x: None], ['dots-vertical', lambda x: app.handle_menu("MENU_LEFT", x)]]
                     md_bg_color : utils.get_color_from_hex('#edecec')         
                 # BoxLayout :
                 #     orientation : "horizontal"
@@ -54,7 +54,7 @@
                     id : toolbar_chat
                     title : "Chat With"
                     left_action_items: [['account', lambda x: None]]
-                    right_action_items: [['magnify', lambda x: None],['dots-vertical', lambda x: None]]
+                    right_action_items: [['magnify', lambda x: None],['dots-vertical', lambda x: app.handle_menu("MENU_RIGHT", x)]]
                     md_bg_color: [237/255,236/255,236/255,255/255]
                 ScrollView:
                     size_hint: (None, None)
@@ -88,3 +88,64 @@
                         id : send_user_entered_msg_button
                         icon : 'send'
                         on_release : app.send_user_entered_msg()
+    
+    MDNavigationDrawer :
+        id : profile_left
+        md_bg_color: get_color_from_hex("#f0f2f5")
+        size_hint : (None, None)
+        size : (root.width * .3, root.height)
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y : None
+            height : root.height * 0.2
+            canvas :
+                Color :
+                    rgba : utils.get_color_from_hex('#008069')
+                Rectangle :
+                    pos : self.pos
+                    size : self.size
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y : None
+                height : self.minimum_height
+                padding : [20,20,20,20]
+                # Image : 
+                #     source : './images/left_arrow.png'
+                MDIconButton:
+                    icon : "arrow-left"
+                    icon_color : app.theme_cls.primary_color
+                    theme_icon_color : app.theme_cls.primary_color
+                Label :
+                    text : "Profile"
+                    font_size : "20sp"
+                    color : utils.get_color_from_hex('#ffffff')
+                    # size_hint_x : 0.8
+                    # halign : 'left'
+                    # valign : 'middle'
+            BoxLayout:
+                orientation : "vertical"
+                padding : [20,20,20,20]
+                canvas :
+                    Color :
+                        rgba : utils.get_color_from_hex('#ffffff')
+                    Rectangle :
+                        pos : self.pos
+                        size : self.size
+                Label : 
+                    text : "Your name"
+                    font_size : "15sp"
+                    color : utils.get_color_from_hex('#008069')
+                    size_hint_x : 0.8
+
+                    halign : 'left'
+                    valign : 'top'
+                    text_size : self.size
+                
+
+                
+
+    MDNavigationDrawer :
+        id : new_chat
+        md_bg_color: get_color_from_hex("#ffffff")
+        size_hint : (None, None)
+        size : (root.width * .3, root.height)

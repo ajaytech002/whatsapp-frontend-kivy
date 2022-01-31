@@ -49,33 +49,91 @@ class IndexApp(MDApp):
         print(text)
 
     def handle_menu(self, *args):
-        if (args[0] == "LEFT_MENU"):
-            self.dropdown.open(args[1])
-            print(args[1])
-            print("called")
+        if (args[0] == "MENU_LEFT"):
+            self.dropdown_left.open(args[1])
+        if (args[0] == "MENU_RIGHT"):
+            self.dropdown_right.open(args[1])
 
     def handle_menu_item(self, *args):
         if (args[0] == "Settings"):
             print("Settings")
         if (args[0] == "Logout"):
             print("Logout")
+        if (args[0] == "Contact Info"):
+            print("Contact Info")
+        if (args[0] == "Close chat"):
+            print("Close chat")
+        if (args[0] == "Clear messages"):
+            print("Clear messages")
+        if (args[0] == "Delete chat"):
+            print("Delete chat")
 
-    def on_start(self):
-        # Create the left menu
-        self.dropdown = DropDown()
-        self.dropdown.auto_width = False
-        self.dropdown.width = 200
-        btn_settings = MDRaisedButton(
-            text='Settings',
-            size_hint_y=None,
-            height=44,
-            md_bg_color=get_color_from_hex("#f4f7f6"),
-            text_color=get_color_from_hex("#424f49"),
-            # size_hint_x=None,
-            width="280dp",
-            # increment_width="164dp",
-            font_size="16sp",
-        )
+    '''Creates the left menu triggered by the 3 vertical dots on the left side of the toolbar   
+    '''
+
+    def create_menus(self):
+        self.dropdown_left = DropDown()
+        self.dropdown_right = DropDown()
+        # Kivy's DropDown's width is automatically set, based on the parent's width.
+        # If you want to set it manually, you can do it like this:
+        self.dropdown_left.auto_width = False
+        self.dropdown_left.width = 200
+
+        self.dropdown_right.auto_width = False
+        self.dropdown_right.width = 200
+
+        # There are 2 menu items at the moment.
+        menu_items_left = ["Settings", "Logout"]
+        menu_items_right = ["Contact Info", "Close chat",
+                            "Clear messages", "Delete chat"]
+        for item in menu_items_left:
+            btn_settings = MDRaisedButton(
+                text=item,
+                size_hint_y=None,
+                height=44,
+                md_bg_color=get_color_from_hex("#f4f7f6"),
+                text_color=get_color_from_hex("#424f49"),
+                # size_hint_x=None,
+                width="280dp",
+                # increment_width="164dp",
+                font_size="16sp",
+            )
+            btn_settings.bind(
+                on_release=lambda btn: self.dropdown_left.select(btn.text))
+            self.dropdown_left.add_widget(btn_settings)
+
+        self.dropdown_left.bind(on_select=lambda instance,
+                                x: self.handle_menu_item(x))
+
+        for item in menu_items_right:
+            # btn_settings = MDRaisedButton(
+            #     text=item,
+            #     size_hint_y=None,
+            #     height=44,
+            #     md_bg_color=get_color_from_hex("#f4f7f6"),
+            #     text_color=get_color_from_hex("#424f49"),
+            #     # size_hint_x=None,
+            #     # width="280dp",
+            #     # increment_width="200dp",
+            #     font_size="16sp",
+            # )
+
+            btn_settings = Button(
+                text=item,
+                height=44,
+                size_hint_y=None,
+                background_color=get_color_from_hex("#ffffff"),
+                background_normal="",
+                color=get_color_from_hex("#536068"),
+                # text_size=(200, None)
+            )
+
+            btn_settings.bind(
+                on_release=lambda btn: self.dropdown_right.select(btn.text))
+            self.dropdown_right.add_widget(btn_settings)
+
+        self.dropdown_right.bind(on_select=lambda instance,
+                                 x: self.handle_menu_item(x))
         # size_hint_y=None,
         # height=44,
         # background_color=get_color_from_hex(
@@ -83,21 +141,20 @@ class IndexApp(MDApp):
         # background_normal="",
         # color=get_color_from_hex("#536068"),
         # )
-        btn_settings.bind(
-            on_release=lambda btn: self.dropdown.select(btn.text))
-        self.dropdown.add_widget(btn_settings)
 
-        btn_logout = Button(text="Logout",
-                            size_hint_y=None,
-                            height=44,
-                            background_color=get_color_from_hex("#ffffff"),
-                            background_normal="",
-                            color=get_color_from_hex("#536068"),)
-        btn_logout.bind(
-            on_release=lambda btn: self.dropdown.select(btn.text))
-        self.dropdown.add_widget(btn_logout)
-        self.dropdown.bind(on_select=lambda instance,
-                           x: self.handle_menu_item(x))
+        # btn_logout = Button(text="Logout",
+        #                     size_hint_y=None,
+        #                     height=44,
+        #                     background_color=get_color_from_hex("#ffffff"),
+        #                     background_normal="",
+        #                     color=get_color_from_hex("#536068"),)
+        # btn_logout.bind(
+        #     on_release=lambda btn: self.dropdown.select(btn.text))
+        # self.dropdown.add_widget(btn_logout)
+
+    def on_start(self):
+        # Create the left and right menus
+        self.create_menus()
 
         # load chats
         chats = json.load(open("./data/chats.json"))
