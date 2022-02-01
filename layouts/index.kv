@@ -34,12 +34,8 @@
                 MDToolbar:
                     # width: root.width - 100
                     left_action_items: [['account', lambda x: profile_left.set_state("open")]]
-                    right_action_items: [['cached', lambda x: None], ['message-text', lambda x: None], ['dots-vertical', lambda x: app.handle_menu("MENU_LEFT", x)]]
+                    right_action_items: [['cached', lambda x: None], ['message-text', lambda x: new_chat.set_state("open")], ['dots-vertical', lambda x: app.handle_menu("MENU_LEFT", x)]]
                     md_bg_color : utils.get_color_from_hex('#edecec')         
-                # BoxLayout :
-                #     orientation : "horizontal"
-                #     width : root.width - 100
-
 
                 ScrollView:
                     MDList :
@@ -89,6 +85,7 @@
                         icon : 'send'
                         on_release : app.send_user_entered_msg()
     
+    # Profile left navigation drawer
     MDNavigationDrawer :
         id : profile_left
         md_bg_color: get_color_from_hex("#f0f2f5")
@@ -97,34 +94,59 @@
         BoxLayout:
             orientation: 'vertical'
             size_hint_y : None
-            height : root.height * 0.2
-            canvas :
-                Color :
-                    rgba : utils.get_color_from_hex('#008069')
-                Rectangle :
-                    pos : self.pos
-                    size : self.size
-            BoxLayout:
+            height : root.height
+            # size_hint_y : None
+            # height : root.height * 0.2
+            spacing : 20  # used to space the different widgets in the navigation drawer
+
+            BoxLayout: # Profile text with left arrow
+                canvas :
+                    Color :
+                        rgba : utils.get_color_from_hex('#008069')
+                    Rectangle :
+                        pos : self.pos
+                        size : self.size
                 orientation: 'horizontal'
                 size_hint_y : None
                 height : self.minimum_height
-                padding : [20,20,20,20]
                 # Image : 
                 #     source : './images/left_arrow.png'
                 MDIconButton:
                     icon : "arrow-left"
                     icon_color : app.theme_cls.primary_color
                     theme_icon_color : app.theme_cls.primary_color
+                    on_release : profile_left.set_state("close")
                 Label :
                     text : "Profile"
                     font_size : "20sp"
                     color : utils.get_color_from_hex('#ffffff')
-                    # size_hint_x : 0.8
-                    # halign : 'left'
-                    # valign : 'middle'
-            BoxLayout:
+                    text_size : self.size
+                    halign : 'left'
+                    valign : 'middle'
+
+            # profile picture
+            Image : 
+                id : profile_pic
+                source : './images/profile.png'
+                # size : self.size
+                # allow_stretch : True
+                # keep_ratio : True
+                # on_press or on_release does not work for Image widgets.
+                # use on_touch_down or on_touch_up instead.
+                # on_touch_down : app.update_profile_pic()
+
+            MDFlatButton : 
+                id : update_profile_pic_button
+                text : "Update"
+                size_hint_y : None
+                pos_hint : {"center_x": .5, "center_y": .5}
+                on_release : app.update_profile_pic()
+
+            BoxLayout: # Name
                 orientation : "vertical"
                 padding : [20,20,20,20]
+                size_hint_y : None
+                height : self.minimum_height
                 canvas :
                     Color :
                         rgba : utils.get_color_from_hex('#ffffff')
@@ -135,17 +157,81 @@
                     text : "Your name"
                     font_size : "15sp"
                     color : utils.get_color_from_hex('#008069')
-                    size_hint_x : 0.8
-
                     halign : 'left'
                     valign : 'top'
                     text_size : self.size
-                
+                BoxLayout:  
+                    size_hint_y : None
+                    orientation : "horizontal"
+                    MDTextField :
+                        id : name
+                        hint_text : "Your name"
+                    MDIconButton :
+                        icon : "check"
+                        on_release : app.change_name()
+                Label : 
+                    text : "This is not your user name or pin. This name will be visible to your WhatsApp contacts."
+                    font_size : "13sp"
+                    color : utils.get_color_from_hex('#8697a0')
+                    size_hint_y : None
+                    height : 40
+                    halign : 'left'
+                    valign : 'top'
+                    text_size : self.size
+
+            BoxLayout: # status
+                orientation : "vertical"
+                padding : [20,20,20,20]
+                size_hint_y : None
+                height : self.minimum_height
+                canvas :
+                    Color :
+                        rgba : utils.get_color_from_hex('#ffffff')
+                    Rectangle :
+                        pos : self.pos
+                        size : self.size
+                Label : 
+                    text : "About"
+                    font_size : "15sp"
+                    color : utils.get_color_from_hex('#008069')
+                    halign : 'left'
+                    valign : 'top'
+                    text_size : self.size
+
+                BoxLayout:  
+                    size_hint_y : None
+                    orientation : "horizontal"
+                    MDTextField :
+                        id : status
+                        hint_text : "Your status"
+                        text : "Hey there! I am using WhatsApp."
+                    MDIconButton :
+                        icon : "check"
+                        on_release : app.change_status()
+                # Dropdown menu for profile picture change
 
                 
-
+    # New chat left navigation drawer
     MDNavigationDrawer :
         id : new_chat
         md_bg_color: get_color_from_hex("#ffffff")
         size_hint : (None, None)
         size : (root.width * .3, root.height)
+
+    # ModalView :
+    #     id : file_chooser_modal
+    #     auto_dismiss : True
+    #     size_hint : None, None
+    #     size : root.width - 100, root.height - 100
+    #     Button :
+    #         id : file_chooser_close_button
+    #         text : "Close"
+    #         size_hint_y : None
+    #         on_release : file_chooser_modal.dismiss()
+    #     FileChooserListView :
+    #         id : file_chooser
+
+
+
+
+

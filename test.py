@@ -1,41 +1,83 @@
-from kivy.lang import Builder
-
 from kivymd.app import MDApp
-from kivymd.uix.menu import MDDropdownMenu
+from kivy.core.window import Window
+from kivy.lang import Builder
+from kivy.factory import Factory
+from kivy.uix.modalview import ModalView
 
-KV = '''
-MDScreen:
-
-    MDRaisedButton:
-        id: button
-        text: "PRESS ME"
-        pos_hint: {"center_x": .5, "center_y": .5}
-        on_release: app.menu.open()
-'''
+from kivymd.uix.filemanager import MDFileManager
+from kivymd.theming import ThemeManager
+from kivymd.toast import toast
 
 
-class Test(MDApp):
+Builder.load_string('''
+<ExampleFileManager@BoxLayout>
+    orientation: 'vertical'
+    spacing: dp(5)
+
+    MDToolbar:
+        id: toolbar
+        title: app.title
+        left_action_items: [['menu', lambda x: None]]
+        elevation: 10
+        md_bg_color: app.theme_cls.primary_color
+
+
+    FloatLayout:
+
+        MDRoundFlatIconButton:
+            text: "Open manager"
+            icon: "folder"
+            pos_hint: {'center_x': .5, 'center_y': .6}
+            on_release: app.file_manager_open()
+''')
+
+
+class Example(MDApp):
+    title = "File Manage"
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.screen = Builder.load_string(KV)
-        menu_items = [
-            {
-                "text": f"Item {i}",
-                "viewclass": "OneLineListItem",
-                "on_release": lambda x=f"Item {i}": self.menu_callback(x),
-            } for i in range(5)
-        ]
-        self.menu = MDDropdownMenu(
-            caller=self.screen.ids.button,
-            items=menu_items,
-            width_mult=4,
-        )
-
-    def menu_callback(self, text_item):
-        print(text_item)
+        Window.bind(on_keyboard=self.events)
+        self.manager_open = False
+        self.manager = None
 
     def build(self):
-        return self.screen
+        return Factory.ExampleFileManager()
+
+    def file_manager_open(self):
+        if not self.manager:
+            self.manager = ModalView(size_hint=(1, 1), auto_dismiss=False)
+            self.file_manager = MDFileManager(
+                exit_manager=self.exit_manager, select_path=self.select_path)
+            self.manager.add_widget(self.file_manager)
+            self.file_manager.show('/')  # output manager to the screen
+        self.manager_open = True
+        self.manager.open()
+
+    def select_path(self, path):
+        '''It will be called when you click on the file name
+        or the catalog selection button.
+
+        :type path: str;
+        :param path: path to the selected directory or file;
+        '''
+
+        self.exit_manager()
+        toast(path)
+
+    def exit_manager(self, *args):
+        '''Called when the user reaches the root of the directory tree.'''
+
+        self.manager.dismiss()
+        self.manager_open = False
+
+    def events(self, instance, keyboard, keycode, text, modifiers):
+        '''Called when buttons are pressed on the mobile device..'''
+
+        if keyboard in (1001, 27):
+            if self.manager_open:
+                self.file_manager.back()
+        return True
 
 
-Test().run()
+Example().run()

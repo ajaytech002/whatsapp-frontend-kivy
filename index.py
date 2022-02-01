@@ -7,6 +7,8 @@ from kivy.uix.gridlayout import GridLayout
 from kivymd.uix.list import TwoLineIconListItem
 from kivymd.uix.list import ImageLeftWidget
 from kivymd.uix.card import MDCard
+from kivy.uix.modalview import ModalView
+from kivy.uix.filechooser import FileChooserListView
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.uix.button import Button
 from kivy.utils import get_color_from_hex
@@ -15,14 +17,18 @@ from kivymd.uix.behaviors import RoundedRectangularElevationBehavior
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.button import MDFlatButton, MDRaisedButton, MDRectangleFlatButton
 from kivy.uix.dropdown import DropDown
+from kivymd.uix.dialog import MDDialog
+from kivymd.toast import toast
 from kivymd.icon_definitions import md_icons
 from kivymd.app import MDApp
 from kivy.clock import Clock
 import json
+import os
 from datetime import datetime
 
 Builder.load_file("layouts/index.kv")
 Builder.load_file("layouts/chat_bubble.kv")
+Builder.load_file("layouts/profile_pic_dropdown.kv")
 
 
 class MyGrid(Widget):
@@ -35,9 +41,14 @@ class ChatBubble(MDBoxLayout):
     pass
 
 
+class ProfilePicDropDown(DropDown):
+    pass
+
+
 class IndexApp(MDApp):
 
     left_menu = ObjectProperty()
+    dialog = None  # type: MDDialog
 
     def build(self):
         self.theme_cls.primary_palette = "Gray"
@@ -68,7 +79,34 @@ class IndexApp(MDApp):
         if (args[0] == "Delete chat"):
             print("Delete chat")
 
-    '''Creates the left menu triggered by the 3 vertical dots on the left side of the toolbar   
+    def handle_file_chooser(self, *args):
+
+        if (len(args[1]) == 0):
+            return
+        else:
+            # some file has been selected.
+            # check if its a png or jpeg
+            file = args[1][0]
+            file_name, file_extension = os.path.splitext(file)
+            if (file_extension == ".png" or file_extension == ".jpeg"):
+                # we have the right file. now we need to save it to the db.
+                print("file_name = ", file_name)
+                print("file_extension = ", file_extension)
+                self.file_chooser_modal.dismiss()
+                # Open the file
+                # send the file to the server
+            else:
+                # we have the wrong file. let the user know via a toast
+                toast("Please select a png or jpeg file")
+
+    def create_modals(self):
+        self.file_chooser_modal = ModalView(size_hint=(None, None),
+                                            size=(400, 400), auto_dismiss=True)
+        self.file_chooser = FileChooserListView()
+        self.file_chooser.bind(selection=self.handle_file_chooser)
+        self.file_chooser_modal.add_widget(self.file_chooser)
+
+    '''Creates the left menu triggered by the 3 vertical dots on the left side of the toolbar
     '''
 
     def create_menus(self):
@@ -134,27 +172,29 @@ class IndexApp(MDApp):
 
         self.dropdown_right.bind(on_select=lambda instance,
                                  x: self.handle_menu_item(x))
-        # size_hint_y=None,
-        # height=44,
-        # background_color=get_color_from_hex(
-        #     "#ffffff"),
-        # background_normal="",
-        # color=get_color_from_hex("#536068"),
-        # )
 
-        # btn_logout = Button(text="Logout",
-        #                     size_hint_y=None,
-        #                     height=44,
-        #                     background_color=get_color_from_hex("#ffffff"),
-        #                     background_normal="",
-        #                     color=get_color_from_hex("#536068"),)
-        # btn_logout.bind(
-        #     on_release=lambda btn: self.dropdown.select(btn.text))
-        # self.dropdown.add_widget(btn_logout)
+        # profile picture change dropdown.
+        # self.profile_pic_dropdown = DropDown()
+        # self.profile_pic_dropdown.add_widget(
+        #     Button(text="Change Profile Picture", size_hint_y=None, height=44))
+        # self.root.ids.profile_pic.bind(
+        #     on_touch_down=lambda x, y: self.profile_pic_dropdown.open)
+
+    # def open_profile_pic_dropdown(self, *args):
+    #     print(args)
+    #     self.profile_pic_dropdown.open(args[0])
+    def open_profile_pic_selection(self, *args):
+        print("open profile pic dropdown")
 
     def on_start(self):
         # Create the left and right menus
         self.create_menus()
+        # self.profile_pic_dropdown = DropDown()
+        # self.profile_pic_dropdown.add_widget(Button(text="Hello"))
+        # self.root.ids.profile_pic.bind(
+        #     on_touch_down=lambda x, y:  self.open_profile_pic_dropdown(x))
+
+        self.create_modals()
 
         # load chats
         chats = json.load(open("./data/chats.json"))
@@ -208,6 +248,37 @@ class IndexApp(MDApp):
 
     def focus_on_user_entered_msg(self, *args):
         self.root.ids.user_entered_msg.focus = True
+
+    def change_name(self):
+        name = self.root.ids.name.text
+        print("name = ", name)
+        ok_button = MDFlatButton(
+            text="OK",
+            theme_text_color="Custom",
+            text_color=self.theme_cls.primary_color,
+            on_release=lambda x: self.dialog.dismiss())
+        if name == "":
+            self.dialog = MDDialog(
+                text="Your name can't be empty",
+                buttons=[ok_button],
+            )
+            self.dialog.open()
+
+    def change_status(self):
+        status = self.root.ids.status.text
+        ok_button = MDFlatButton(
+            text="OK",
+            theme_text_color="Custom",
+            text_color=self.theme_cls.primary_color,
+            on_release=lambda x: self.dialog.dismiss())
+        if status == "":
+            self.dialog = MDDialog(
+                text="About can't be empty", buttons=[ok_button],)
+            self.dialog.open()
+
+    def update_profile_pic(self):
+        print("hello")
+        self.file_chooser_modal.open()
 
 
 IndexApp().run()
